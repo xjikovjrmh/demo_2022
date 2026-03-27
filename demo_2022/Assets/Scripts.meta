@@ -1,12 +1,8 @@
 fileFormatVersion: 2
-<<<<<<< HEAD:demo_2022/Assets/Scripts.meta
-guid: 7126e8c54a2c89046864ad4db80e1f23
-=======
-guid: 5d606264c95f3cb469789bafde707e22
->>>>>>> 637f391c22c3db3f7fd02425bd4e254212f85877:My project/Assets/Scripts.meta
+guid: 7126e8c54a289046864ad4db80e1f23
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
   userData: 
   assetBundleName: 
-  assetBundleVariant: 
+  assetBundleVariant:
