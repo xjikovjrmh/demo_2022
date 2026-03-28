@@ -48,8 +48,7 @@ public class CameraController : MonoBehaviour
     private void SwitchToCamera()
     {
         currentCameraIndex++;
-        if (currentCameraIndex > 2)
-            currentCameraIndex = 0;//循环
+        currentCameraIndex %= 3;
 
         //先禁用所有相机
         mainCamera.enabled=false;
