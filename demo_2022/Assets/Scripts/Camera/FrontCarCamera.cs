@@ -21,13 +21,13 @@ public class FrontCarCamera : MonoBehaviour
         yRotation += mouseX;
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -80f, 80f);
-        yRotation = Mathf.Clamp(yRotation, -90f, 90f);
+        //yRotation = Mathf.Clamp(yRotation, -90f, 90f);//取消限制
         //正式旋转
 
 
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);//摄像机沿双轴旋转
         //
-        car.transform.position += car.transform.forward * Time.deltaTime;//朝自己的方向
+        //car.transform.position += car.transform.forward * Time.deltaTime;//朝自己的方向
 
         transform.position = car.position;
 

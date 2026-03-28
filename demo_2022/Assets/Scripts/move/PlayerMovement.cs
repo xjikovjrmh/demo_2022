@@ -9,12 +9,15 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     private Rigidbody rb;
     private float speed = 5f;
+    private float airspeed = 10f;
     public Vector3 moveDirection;
 
     //鼠标速度 
     public float mouseSensitivity = 300f;
     private float yRotation;//只记录y轴
 
+    private KeyCode Up = KeyCode.Space;
+    private KeyCode Down = KeyCode.LeftControl;
     
     private void Awake()
     {
@@ -33,11 +36,35 @@ public class PlayerMovement : MonoBehaviour
             Move(x, y);
 
         }
+        if(Input.GetKey(Up)) //持续发力要getKey
+        {
+            Debug.Log("Up");
+            fly();
+        }
+        if (Input.GetKey(Down))
+        {
+            Debug.Log("Down");
+            ground();
+        }
+
+
+    }
+    private void ground()
+    {
+        rb.MovePosition(transform.position-transform.up*airspeed*Time.deltaTime);
+    }
+
+    private void fly()
+    {
+        rb.MovePosition(transform.position + transform.up *airspeed * Time.deltaTime);
     }
 
     private void Update()
     {
+        //鼠标控制角色旋转
         RotateWithMouse();
+
+        //
 
     }
 
