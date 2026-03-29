@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     private Rigidbody rb;
     private float speed = 5f;
-    private float airspeed = 10f;
+    private float airspeed = 7f;
     public Vector3 moveDirection;
 
     //鼠标速度 

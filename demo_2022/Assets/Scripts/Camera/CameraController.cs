@@ -14,13 +14,22 @@ public class CameraController : MonoBehaviour
     public Camera mainCamera; //这里用GameObject不用camera
     public Camera FrontCarCamera;
     public Camera ThirdCarCamera;
-
+    public ModeController modeController;
+    
+    
     public KeyCode SwitchButton = KeyCode.V;
     private int currentCameraIndex = 0;
 
 
+
+
     private void Awake()
     {
+        modeController = GetComponent<ModeController>();
+
+        //调用modeController的初始化方法
+        modeController.InitMode();
+
         mainCamera.enabled = true;
         FrontCarCamera.enabled = false;
         ThirdCarCamera.enabled = false;
@@ -67,12 +76,16 @@ public class CameraController : MonoBehaviour
         switch (currentCameraIndex)
         {
             case 0:
+                //car模式结束
+                modeController.SwitchMode();
                 mainCamera.enabled=true;
                 mainCamera.GetComponent<AudioListener>().enabled = true;
                 mainCamera.GetComponent<CameraRotation>().enabled = true;
 
                 break;
             case 1:
+                //因为是循环的，在这里开始切换Car模式
+                modeController.SwitchMode();
                 FrontCarCamera.enabled=true;
                 FrontCarCamera.GetComponent<AudioListener>().enabled = true;
                 FrontCarCamera.GetComponent<FrontCarCamera>().enabled=true;

@@ -15,30 +15,36 @@ public class ModeController : MonoBehaviour
 
     void Start()
     {
-        playerMovement =Player.GetComponent<PlayerMovement>();
-        carMovement =Car.GetComponent<CarMovement>();
+        
+
+
+    }
+    public void InitMode()
+    {
+        playerMovement = Player.GetComponent<PlayerMovement>();
+        carMovement = Car.GetComponent<CarMovement>();
         carMovement.enabled = false;
         playerMovement.enabled = true;
-
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.M))
-        {
-            IsPeopleMode = !IsPeopleMode;
-            IsCarMode = !IsCarMode;
-            Debug.Log("IsPeopleMode:"+IsPeopleMode+" IsCarMode:" + IsCarMode);
-
-            SwitchMode();
-        }
+        //if(Input.GetKeyDown(KeyCode.M))
+        //{
+            //SwitchMode();
+        //}
         
     }
 
-    private void SwitchMode()
+    //公共方法 ，在切换视角时顺便调用
+    public void SwitchMode()
     {
+        //写在函数里面，方便外部调用
+        IsPeopleMode = !IsPeopleMode;
+        IsCarMode = !IsCarMode;
+        Debug.Log("IsPeopleMode:" + IsPeopleMode + " IsCarMode:" + IsCarMode);
         if (IsPeopleMode && !IsCarMode)
         {
             playerMovement.enabled = true;
