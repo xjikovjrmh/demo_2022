@@ -5,7 +5,7 @@ using UnityEngine;
 public class FrontCarCamera : MonoBehaviour
 {
     private float mouseSensitivity = 300;//灵敏度
-    public Transform car; //第一人称车头位置
+    public Transform carHead; //第一人称车头位置
     public float xRotation = 0f;//俯仰角
     public float yRotation = 0f;
     private void Start()
@@ -29,7 +29,7 @@ public class FrontCarCamera : MonoBehaviour
         //
         //car.transform.position += car.transform.forward * Time.deltaTime;//朝自己的方向
 
-        transform.position = car.position;
+        transform.position = carHead.position;
 
     }
 

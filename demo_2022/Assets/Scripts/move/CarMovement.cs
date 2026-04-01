@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 public class CarMovement : MonoBehaviour
 {
     // Start is called before the first frame update
-    private float speed = 5f;
+    private float speed = 10f;
     private Vector3 moveDirection;
     private Rigidbody rb;
 
@@ -24,9 +24,6 @@ public class CarMovement : MonoBehaviour
         {
             move(y);
         }
-        
-
-
     }
 
     private void move(float y)

@@ -7,19 +7,21 @@ using UnityEngine.UIElements;
 public class CameraController : MonoBehaviour
 {
     // Start is called before the first frame update
+    //存储两个tram的两个机位,
+    public Transform tram1FirstCamera;
+    public Transform tram1ThirdCamera;
+    public Transform tram2FirstCamera;
+    public Transform tram2ThirdCamera;
 
-    public Transform  cameraPosition1;
-    public Transform cameraPosition2;
-    public Transform cameraPosition3;
     public Camera mainCamera; //这里用GameObject不用camera
     public Camera FrontCarCamera;
     public Camera ThirdCarCamera;
-    public ModeController modeController;
+    private ModeController modeController;
     
-    
+    public KeyCode SwitchTram = KeyCode.B;//切换车号
     public KeyCode SwitchButton = KeyCode.V;
     private int currentCameraIndex = 0;
-
+    private int currentCarNumber = 0;
 
 
 
@@ -29,14 +31,15 @@ public class CameraController : MonoBehaviour
 
         //调用modeController的初始化方法
         modeController.InitMode();
-
+        //开始相机只保留主相机
         mainCamera.enabled = true;
         FrontCarCamera.enabled = false;
         ThirdCarCamera.enabled = false;
+        //只保留主相机的AudioListener脚本
         mainCamera.GetComponent<AudioListener>().enabled = true;
         FrontCarCamera.GetComponent<AudioListener>().enabled = false;
         ThirdCarCamera.GetComponent<AudioListener>().enabled = false;
-
+        //只激活主相机跟随脚本
         mainCamera.GetComponent<CameraRotation>().enabled = true;
         FrontCarCamera.GetComponent<FrontCarCamera>().enabled= false;
         ThirdCarCamera.GetComponent<ThirdPersonCamera>().enabled= false;
@@ -51,9 +54,32 @@ public class CameraController : MonoBehaviour
             SwitchToCamera();//别传入参数，否则会因为局部变量而在函数执行后销毁
         }
 
-        
+        if (Input.GetKeyDown(SwitchTram))
+        {
+            SwitchToCar();
+        }
     }
 
+    private void SwitchToCar()
+    {
+        currentCarNumber++;
+        currentCarNumber %= 2;
+        //只要切换相机跟随目标即可
+        switch (currentCarNumber)
+        {
+            case 0:
+                Debug.Log("切换到一号车");
+                FrontCarCamera.GetComponent<FrontCarCamera>().carHead = tram1FirstCamera;
+                ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram1FirstCamera; break;
+            case 1:
+                Debug.Log("切换到二号车");
+                FrontCarCamera.GetComponent<FrontCarCamera>().carHead = tram2FirstCamera;
+                ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram2FirstCamera; break;
+
+        }
+
+        
+    }
     private void SwitchToCamera()
     {
         currentCameraIndex++;

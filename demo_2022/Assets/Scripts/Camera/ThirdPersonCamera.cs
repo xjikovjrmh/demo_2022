@@ -3,7 +3,7 @@
 public class ThirdPersonCamera : MonoBehaviour
 {
     public Transform target;         // 跟随的目标
-    public float distance = 5.0f;    // 距离目标的距离
+    public float distance = 20f;    // 距离目标的距离
     public float height = 2.0f;      // 摄像机高度
     public float rotationSpeed = 5.0f; // 鼠标旋转速度
 
