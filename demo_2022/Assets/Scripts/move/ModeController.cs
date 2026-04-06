@@ -16,7 +16,7 @@ public class ModeController : MonoBehaviour
     void Start()
     {
         
-
+        InitMode();
 
     }
     public void InitMode()

@@ -16,7 +16,8 @@ public class SingletonAutoMono<T> : MonoBehaviour where T :MonoBehaviour
             obj.name = typeof(T).ToString();
             //过场景时不销毁
             DontDestroyOnLoad(obj);
-            instance = obj.AddComponent<T>();
+            instance = obj.AddComponent<T>();   //如果知识一个脚本EventCenter继承了单例模式，那么在GetInstance()时就会创建一个物体叫
+                                                // EventCenter 同时挂载了这个脚本EventCenter
         }
         return instance;
     }
