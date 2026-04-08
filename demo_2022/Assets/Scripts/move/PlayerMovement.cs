@@ -14,7 +14,7 @@ public class PlayerMovement : MonoBehaviour
     private bool IsSpeed = false;
     public Vector3 moveDirection;
     //private float highspeed = 10f;
-
+    public float F=10;
 
     //鼠标速度 
     public float mouseSensitivity = 300f;
@@ -66,20 +66,23 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("Down");
             ground(currentAirSpeed);
         }
-        
 
     }
+    //不会无限加速，固定在currentSpeed*F/drag
     private void ground(float currentspeed)
     {
-        rb.MovePosition(transform.position-transform.up* currentspeed * Time.deltaTime);
+        rb.AddForce(-transform.up *F* currentspeed, ForceMode.Acceleration);
+        //rb.MovePosition(transform.position-transform.up* currentspeed * Time.deltaTime);
     }
 
     private void fly(float currentspeed)
     {
-        rb.MovePosition(transform.position + transform.up * currentspeed * Time.deltaTime);
+        rb.AddForce(transform.up*F* currentspeed, ForceMode.Acceleration);
+
+        //rb.MovePosition(transform.position + transform.up * currentspeed * Time.deltaTime);
     }
 
-    
+
 
     private void RotateWithMouse()
     {
@@ -99,7 +102,8 @@ public class PlayerMovement : MonoBehaviour
         // ============== 核心：判断是否按Shift加速 ==============
         
         moveDirection = (transform.right*x+transform.forward*y).normalized;
-        rb.MovePosition(transform.position+moveDirection * currentspeed * Time.deltaTime);
+
+        rb.AddForce(moveDirection *F* currentspeed, ForceMode.Acceleration);
 
     }
 }
