@@ -51,6 +51,7 @@ public class CameraController : MonoBehaviour
         FrontCarCamera.GetComponent<FrontCarCamera>().enabled= false;
         ThirdCarCamera.GetComponent<ThirdPersonCamera>().enabled= false;
 
+        //
     }
 
     // Update is called once per frame
@@ -61,7 +62,8 @@ public class CameraController : MonoBehaviour
             SwitchToCamera();//别传入参数，否则会因为局部变量而在函数执行后销毁
         }
         //这里要求只在车的视角可以切换车号
-        if (Input.GetKeyDown(SwitchTram)&&currentCameraIndex>0)
+        //if (Input.GetKeyDown(SwitchTram)&&currentCameraIndex>0)
+        if (Input.GetKeyDown(SwitchTram))
         {
             SwitchToCar();
         }
@@ -79,10 +81,11 @@ public class CameraController : MonoBehaviour
             case 0:
                 Debug.Log("切换到一号车");
                 //相机跟随点变化
+                //carMovement脚本变化
                 currentTram.enabled=false;
                 currentTram = tram1.GetComponent<CarMovement>();
                 currentTram.enabled = true;
-
+                //camera 脚本变化
                 FrontCarCamera.GetComponent<FrontCarCamera>().carHead = tram1FirstCamera;
                 ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram1FirstCamera; break;
             case 1:
@@ -91,7 +94,6 @@ public class CameraController : MonoBehaviour
                 currentTram = tram2.GetComponent<CarMovement>();
                 currentTram.enabled = true;
 
-                
                 FrontCarCamera.GetComponent<FrontCarCamera>().carHead = tram2FirstCamera;
                 ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram2FirstCamera; break;
 
@@ -146,7 +148,6 @@ public class CameraController : MonoBehaviour
                 ThirdCarCamera.GetComponent<AudioListener>().enabled = true;
                 ThirdCarCamera.GetComponent<ThirdPersonCamera>().enabled = true;
                 break;
-
         }
 
     }
