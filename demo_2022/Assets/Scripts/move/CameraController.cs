@@ -87,7 +87,7 @@ public class CameraController : MonoBehaviour
                 currentTram.enabled = true;
                 //camera 脚本变化
                 FrontCarCamera.GetComponent<FrontCarCamera>().carHead = tram1FirstCamera;
-                ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram1FirstCamera; break;
+                ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram1ThirdCamera; break;
             case 1:
                 Debug.Log("切换到二号车");
                 currentTram.enabled = false;
@@ -95,7 +95,7 @@ public class CameraController : MonoBehaviour
                 currentTram.enabled = true;
 
                 FrontCarCamera.GetComponent<FrontCarCamera>().carHead = tram2FirstCamera;
-                ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram2FirstCamera; break;
+                ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram2ThirdCamera; break;
 
         }
     }
