@@ -7,7 +7,7 @@ public class Mouse_Touch : MonoBehaviour
     private List<GameObject> selectedobjs= new List<GameObject>();
     public Camera cam;
     public LayerMask raycastLayer; // 
-
+    //这里默认层级是default ，也就是新加入场景的物体都可以挂载脚本（除了其他层级，比如tram，防止被删除）
     private Stack<GameObject> resetobjs=new Stack<GameObject>();
     
     //使用HighLightSystem2可以手动添加高亮脚本，不用在打包时添加
@@ -18,8 +18,11 @@ public class Mouse_Touch : MonoBehaviour
     {
         if(Input.GetMouseButtonDown(0)) //鼠标左键按下
         {
-              //out 额外返回信息
-                if(TryRayCast(out RaycastHit hit))//检测到物体   如果没有击中物体将不能直接访问.gameObject，会报错
+
+           
+
+            //out 额外返回信息
+            if (TryRayCast(out RaycastHit hit))//检测到物体   如果没有击中物体将不能直接访问.gameObject，会报错
                 {
                     GameObject clickedObj = hit.collider.gameObject;
                     if(selectedobjs.Contains(clickedObj))//已选中则取消选中
@@ -86,8 +89,12 @@ public class Mouse_Touch : MonoBehaviour
     {
         //将屏幕坐标转为世界空间射线
         Ray ray = cam.ScreenPointToRay(Input.mousePosition); //从摄像机发出一条经过鼠标位置的射线
+        //调试代码
+        Debug.DrawRay(ray.origin, ray.direction * 2000f, Color.red, 2f);
+
         return Physics.Raycast(ray, out hit,2000f,raycastLayer);  //如果命中，则返回 true，并将命中的信息存储在 hit 中
-                                        //最大距离限制     //检测层
+                                                                  //最大距离限制     //检测层
+
     }
 
 
