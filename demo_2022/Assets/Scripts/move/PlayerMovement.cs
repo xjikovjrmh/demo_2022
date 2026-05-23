@@ -27,12 +27,16 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         // 隐藏并锁定鼠标
-        //Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+    private void Start()
+    {
+        yRotation = transform.rotation.eulerAngles.y;
     }
     private void Update()
     {
         //鼠标控制角色旋转
-        RotateWithMouse();
+        //RotateWithMouse();
         if (Input.GetKeyDown(KeyCode.LeftShift))//这个必须放在update里面，否则丢失
         {
             Debug.Log("加速");
@@ -84,12 +88,12 @@ public class PlayerMovement : MonoBehaviour
 
 
 
-    private void RotateWithMouse()
-    {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        yRotation += mouseX;//累加 不然每次只旋转（实际上是移动到）一点
-        transform.rotation = Quaternion.Euler(0, yRotation, 0);//只绕y旋转
-    }
+    //private void RotateWithMouse()
+    //{
+    //    float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+    //    yRotation += mouseX;//累加 不然每次只旋转（实际上是移动到）一点
+    //    transform.rotation = Quaternion.Euler(0, yRotation, 0);//只绕y旋转
+    //}
 
     private void Move(float x,float y,float currentspeed)
     {
@@ -102,7 +106,7 @@ public class PlayerMovement : MonoBehaviour
         // ============== 核心：判断是否按Shift加速 ==============
         
         moveDirection = (transform.right*x+transform.forward*y).normalized;
-
+        Debug.Log(moveDirection.ToString());
         rb.AddForce(moveDirection *F* currentspeed, ForceMode.Acceleration);
 
     }

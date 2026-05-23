@@ -90,7 +90,7 @@ public class Mouse_Touch : MonoBehaviour
         //将屏幕坐标转为世界空间射线
         Ray ray = cam.ScreenPointToRay(Input.mousePosition); //从摄像机发出一条经过鼠标位置的射线
         //调试代码
-        Debug.DrawRay(ray.origin, ray.direction * 2000f, Color.red, 2f);
+        //Debug.DrawRay(ray.origin, ray.direction * 2000f, Color.red, 2f);
 
         return Physics.Raycast(ray, out hit,2000f,raycastLayer);  //如果命中，则返回 true，并将命中的信息存储在 hit 中
                                                                   //最大距离限制     //检测层
