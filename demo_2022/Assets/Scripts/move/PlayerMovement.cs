@@ -35,7 +35,9 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Update()
     {
-        //鼠标控制角色旋转
+
+        
+        //鼠标控制角色旋转  删了
         //RotateWithMouse();
         if (Input.GetKeyDown(KeyCode.LeftShift))//这个必须放在update里面，否则丢失
         {
@@ -106,7 +108,7 @@ public class PlayerMovement : MonoBehaviour
         // ============== 核心：判断是否按Shift加速 ==============
         
         moveDirection = (transform.right*x+transform.forward*y).normalized;
-        Debug.Log(moveDirection.ToString());
+        //Debug.Log(moveDirection.ToString());
         rb.AddForce(moveDirection *F* currentspeed, ForceMode.Acceleration);
 
     }

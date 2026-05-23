@@ -17,12 +17,16 @@ public class CameraRotation : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-       
+        //将相机的初始角度与Player 保持一致
+       Vector3 currentEuler = transform.rotation.eulerAngles;
+        xRotation = currentEuler.x; //因为后面的mouse y ，mousex是偏移量，累加到这两个上面，不会清零
+        yRotation = currentEuler.y;
     }
 
     private void Update()
     {
-        // 前两帧专门用来"吸收"加载期间累积的鼠标位移
+
+        //前两帧专门用来"吸收"加载期间累积的鼠标位移
         if (!hasInitialized)
         {
             if (!inputReady)
@@ -42,7 +46,7 @@ public class CameraRotation : MonoBehaviour
                 return;
             }
         }
-        
+
         // 正常旋转逻辑
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
