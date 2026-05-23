@@ -4,33 +4,55 @@ using UnityEngine;
 
 public class CameraRotation : MonoBehaviour
 {
-    private float mouseSensitivity = 300;//灵敏度
-    public Transform playerBody; //第一人称玩家位置
-    public float xRotation = 0f;//俯仰角
+    private float mouseSensitivity = 300;
+    public Transform playerBody;
+    public float xRotation = 0f;
     public float yRotation = 0f;
+
+    private bool inputReady = false;
+    private bool hasInitialized = false;
+
     private void Start()
     {
-        //光标锁屏幕中央并且不可见
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+       
     }
-    private void Update() //FixedUpdate 太慢
+
+    private void Update()
     {
-        //mouseX 是鼠标绕X轴旋转的值，控制yRotation角
-        float mouseX = Input.GetAxis("Mouse X")*mouseSensitivity*Time.deltaTime;//鼠标左右移动值
-        float mouseY = Input.GetAxis("Mouse Y")*mouseSensitivity*Time.deltaTime;
-        yRotation += mouseX;  
-        xRotation -= mouseY;
-        xRotation =Mathf.Clamp(xRotation, -90f, 90f);//上下旋转
-        //yRotation =Mathf.Clamp(yRotation, -90f, 90f);// 左右旋转 取消范围，可以无限旋转
-        //正式旋转
-        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);//摄像机沿双轴旋转
-        //这是角色的选择控制脚本
-        playerBody.rotation = Quaternion.Euler(0, yRotation, 0);//角色只沿y轴旋转 //不要传入xRotation 会歪
-
-        //相机跟随
-        transform.position=playerBody.position;
+        // 前两帧专门用来"吸收"加载期间累积的鼠标位移
+        if (!hasInitialized)
+        {
+            if (!inputReady)
+            {
+                // 第一帧：什么都不做，只消耗掉累积的输入
+                Input.GetAxis("Mouse X");
+                Input.GetAxis("Mouse Y");
+                inputReady = true;
+                return;
+            }
+            else
+            {
+                // 第二帧：再消耗一次残余，然后标记初始化完成
+                Input.GetAxis("Mouse X");
+                Input.GetAxis("Mouse Y");
+                hasInitialized = true;
+                return;
+            }
+        }
         
+        // 正常旋转逻辑
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        yRotation += mouseX;
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        playerBody.rotation = Quaternion.Euler(0, yRotation, 0);
+        transform.position = playerBody.position;
     }
-
-
 }
