@@ -3665,6 +3665,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb585d9831baf464f8700c9f8452a30e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCamera: {fileID: 963194228}
   direction: {x: 0, y: 0, z: 0, w: 0}
   position: {x: 0, y: 0, z: 0}
 --- !u!1 &1788442432

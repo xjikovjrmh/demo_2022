@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class CameraRotation : MonoBehaviour
@@ -11,6 +12,29 @@ public class CameraRotation : MonoBehaviour
 
     private bool inputReady = false;
     private bool hasInitialized = false;
+
+
+
+
+
+
+    // 获取当前状态（用于保存）
+    public Vector2 GetRotationState()
+    {
+        return new Vector2(xRotation, yRotation);
+    }
+
+    // 设置状态（用于加载）
+    public void SetRotationState(Vector2 state)
+    {
+        xRotation = state.x;
+        yRotation = state.y;
+
+        // 立即应用
+        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        playerBody.rotation = Quaternion.Euler(0, yRotation, 0);
+    }
+
 
     private void Start()
     {
@@ -46,17 +70,17 @@ public class CameraRotation : MonoBehaviour
                 return;
             }
         }
+        float mouseX = Input.GetAxis("Mouse X");
+        float mouseY = Input.GetAxis("Mouse Y");
+        if (mouseX != 0 || mouseY != 0)
+        {
+            yRotation += mouseX * mouseSensitivity * Time.deltaTime;
+            xRotation -= mouseY * mouseSensitivity * Time.deltaTime;
+            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        // 正常旋转逻辑
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        yRotation += mouseX;
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-        playerBody.rotation = Quaternion.Euler(0, yRotation, 0);
+            transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+            playerBody.rotation = Quaternion.Euler(0, yRotation, 0);
+        }
         transform.position = playerBody.position;
     }
 }

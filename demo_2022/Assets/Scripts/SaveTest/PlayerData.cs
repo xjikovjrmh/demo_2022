@@ -5,12 +5,14 @@ using System;
 
 public class PlayerData : MonoBehaviour
 {
+    public Transform mainCamera;
+
     #region Fields
 
     //[SerializeField] string playerName = "Player Name";
     //[SerializeField] int level = 0;
     //[SerializeField] int coin = 0;
-    [SerializeField] Quaternion direction;
+    [SerializeField] public float rotX,rotY,rotZ;
     [SerializeField] Vector3 position;
 
 
@@ -18,17 +20,28 @@ public class PlayerData : MonoBehaviour
     [System.Serializable]
     class SaveData
     {
-        public Quaternion direction;
+        //public Quaternion direction;  json 不能序列化 Quaternion
+        //拆分 保存四元数角度会出问题 ，用欧拉角更好
+
+        public float rotX,rotY, rotZ;
         public Vector3 position;
+        public Vector2 cameraRotation;
+        public Quaternion GetRotation()
+        {
+            return Quaternion.Euler(rotX,rotY,rotZ);
+        }
+        
     }
+   
+
     const string PLAYER_DATA_KEY = "PlayerData";
-    const string PLAYER_DATA_FILE_NAME = "PlayerData.sav";
+    const string PLAYER_DATA_FILE_NAME = "PlayerData.json";
+    // 方法2：JSON保存（精度足够，更方便调试）
+    
 
     #endregion
 
     #region Properties
-    public Quaternion Direction =>direction;
-    public Vector3 Position => transform.position;
 
     #endregion
 
@@ -66,8 +79,9 @@ public class PlayerData : MonoBehaviour
 
     void SaveByJson()
     {
+        SaveSystem.SaveByJson(PLAYER_DATA_FILE_NAME, SavingData());
+        Debug.Log("Rotation" + transform.rotation);
 
-        SaveSystem.SaveByJson(PLAYER_DATA_FILE_NAME, SavingData()); 
         //SaveSystem.SaveByJson($"{System.DateTime.Now:yyyy.dd.M HH-mm-ss}.sav",SavingData());//按时名保存
 
     }
@@ -83,19 +97,35 @@ public class PlayerData : MonoBehaviour
     #region Help Functions
     SaveData SavingData()
     {
-
-        return new SaveData
+        SaveData data = new SaveData();
+        
+        data.position = transform.position;
+        Vector3 euler = transform.eulerAngles;
+        data.rotX = euler.x;
+        data.rotY = euler.y;
+        data.rotZ = euler.z;
+        data.position = transform.position;
+        CameraRotation cam = mainCamera.GetComponent<CameraRotation>();
+        if(cam != null)
         {
-
-            direction = transform.rotation,   //try
-            position = transform.position
-        };
+            data.cameraRotation = cam.GetRotationState();//获取旋转信息
+        }
+        
+        return data;
     }
 
     void LoadData(SaveData saveData)
     {
-        transform.rotation = saveData.direction;
+        CameraRotation cam = mainCamera.GetComponent<CameraRotation>();
+
+        //这里下一步会被cameraRotation的旋转覆盖
+        transform.rotation = saveData.GetRotation();
+        if (cam != null)
+        {
+            cam.SetRotationState(saveData.cameraRotation);//必须更新旋转信息;
+        }
         transform.position = saveData.position;
+        
     }
 
     #endregion
