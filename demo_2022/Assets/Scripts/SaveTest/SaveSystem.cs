@@ -44,6 +44,7 @@ public static class SaveSystem
     #region JSON
     public static bool SaveFileExists(string saveFileName)
     {
+        // 获取路径
         var path = Path.Combine(Application.persistentDataPath, saveFileName);
         return File.Exists(path);
     }
@@ -51,10 +52,13 @@ public static class SaveSystem
 
     public static void SaveByJson(string saveFileName,object data)
     {
+        //obj转为json
         var json = JsonUtility.ToJson(data,true);  //true 是为了可读性
         //这样可以适用于Windows和Android
         var path =Path.Combine(Application.persistentDataPath,saveFileName);
 
+
+        //将json 覆写进文件
 #if UNITY_EDITOR
         Debug.Log($"Successfully saved data to {path}");
 #endif

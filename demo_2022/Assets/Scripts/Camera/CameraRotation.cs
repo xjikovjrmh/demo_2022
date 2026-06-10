@@ -14,10 +14,6 @@ public class CameraRotation : MonoBehaviour
     private bool hasInitialized = false;
 
 
-
-
-
-
     // 获取当前状态（用于保存）
     public Vector2 GetRotationState()
     {

@@ -20,6 +20,7 @@ public class PlayerData : MonoBehaviour
     [System.Serializable]
     class SaveData
     {
+
         //public Quaternion direction;  json 不能序列化 Quaternion
         //拆分 保存四元数角度会出问题 ，用欧拉角更好
 
@@ -122,7 +123,7 @@ public class PlayerData : MonoBehaviour
         transform.rotation = saveData.GetRotation();
         if (cam != null)
         {
-            cam.SetRotationState(saveData.cameraRotation);//必须更新旋转信息;
+            cam.SetRotationState(saveData.cameraRotation);//必须更新cameraRotation的旋转信息防止被覆盖;
         }
         transform.position = saveData.position;
         

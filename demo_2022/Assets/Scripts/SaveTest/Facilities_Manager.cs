@@ -1,16 +1,94 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 //引入插件
 using GLTFast;
+using System;
+using System.Collections;
 /// <summary>
 /// 设施进度管理器 —— 挂到一个名为"ProgressManager"的空物体上
 /// </summary>
+/// 其他脚本可以通过FacilityManager.Instance
 public class FacilityManager : MonoBehaviour
 {
     public static FacilityManager Instance { get; private set; }
+    private ProgressData progressData;//实际是是存储一堆facility的列表
+    //声明事件 
+    public event Action<string> OnFacilityDeleted;
 
-    private ProgressData progressData;
+    public event Action<string> OnFacilityRestored;
+    public event Action<FacilityData> OnFacilityAdded;
+    private bool isDirty = false;      // ← 新增  标记是否有修改
+    private Coroutine autoSaveCoroutine; // 防抖协程 0.5秒后修改json数据
+
+    public void SaveNow()
+    {
+        SaveProgress();
+        isDirty = false;
+    }
+    private void TryAutoSave()
+    {
+        isDirty = true;
+        if (autoSaveCoroutine != null)
+        {
+            StopCoroutine(autoSaveCoroutine);
+        }
+        autoSaveCoroutine = StartCoroutine(AutoSaveRoutine());
+    }
+    private IEnumerator AutoSaveRoutine() //添加using system.collections.generic;才能用
+    {
+        yield return new WaitForSeconds(0.5f);
+        if(isDirty)
+        {
+            SaveProgress();
+            isDirty = false;
+        }
+    }
+    public bool DeleteFacility(string id)
+    {
+        FacilityData data =progressData.facilities.Find(f => f.id == id);
+        if (data == null || data.isDeleted) return false;
+        {
+            //修改json数据
+            data.isDeleted = true;
+            isDirty = true;
+            //保存
+            TryAutoSave();
+            //发送事件
+            OnFacilityDeleted?.Invoke(id);
+            return true;
+        }
+    }
+    public bool RestoreFacility(string id)
+    {
+        FacilityData data = progressData.facilities.Find(f => f.id == id);
+        if (data == null || !data.isDeleted) return false;// 不存在或者没有被删除的
+        
+        //恢复
+        data.isDeleted = false;
+        isDirty = true;
+        //保存
+        TryAutoSave();
+        OnFacilityRestored?.Invoke(id);
+        return true;
+
+    }
+    // 获取最近删除的 id ，从最近的开始，一个一个返回
+    public string GetRecentDeletedFacilityId()
+    {
+        // 从 facilities 中找 isDeleted == true 且 addedTime 最新的
+        FacilityData recent = null;
+        foreach (var f in progressData.facilities)
+        {
+            if (!f.isDeleted) continue;  // 被删除的才继续
+            if (recent == null || string.Compare(f.addedTime, recent.addedTime) > 0)
+                recent = f;
+        }
+        return recent?.id;
+    }
+
+
 
     private string Model_Path;
     private const string FILE_NAME = "progress.json";
@@ -19,9 +97,21 @@ public class FacilityManager : MonoBehaviour
 
     private Vector3 currentPosition=Vector3.zero;
 
+
+    void Awake()
+    {
+        //获取路径
+        Model_Path = Path.Combine(Application.persistentDataPath, "Models");
+        // 单例
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
     
-
-
     async void Start()
     {
         // 拼出你模型的实际路径
@@ -73,16 +163,34 @@ public class FacilityManager : MonoBehaviour
             for (int i = 0; i < count; i++)
             {
                 {
+                    if (progressData.facilities[i].isDeleted) //被删除的不显示
+                        continue;
                     Quaternion targetRotation = progressData.facilities[i].GetRotation();
-                    Instantiate(facilityPrefab, progressData.facilities[i].GetPosition(), targetRotation);
+                    
+                    GameObject obj=Instantiate(facilityPrefab, progressData.facilities[i].GetPosition(), targetRotation);
+                    //挂载脚本 身份标识
+                    FacilityIdentity identity =obj.GetComponent<FacilityIdentity>();
+                    if(identity == null)
+                    {
+                        identity = obj.AddComponent<FacilityIdentity>();
+                    }
+                    //设置id,从json读取
+                    identity.Id = progressData.facilities[i].id;
+                    
+                    obj.name = progressData.facilities[i].id;
+                    
+                    //obj.tag = "facility";//添加标签
                 }
                 //加载资源      
             }
-
         }
 
     }
 
+    private void OnApplicationQuit()
+    {
+        if (isDirty) SaveNow();  // 退出时跳过防抖，直接写盘
+    }
     private void SetupParentMeshCollider(GameObject parent)
     {
         // 1. 获取所有子物体的 MeshFilter
@@ -119,63 +227,9 @@ public class FacilityManager : MonoBehaviour
         // 5. 可选：禁用子物体的渲染器（如果有单独的碰撞需求可以保留）
         Debug.Log($"✅ 已为 {parent.name} 添加合并碰撞体，包含 {meshFilters.Length} 个子网格");
     }
-    //private void SetupCollider(GameObject model)
-    //{
-    //    // 检查模型本身是否有 MeshFilter（无子物体情况）
-    //    MeshFilter selfMeshFilter = model.GetComponent<MeshFilter>();
+    
 
-    //    if (selfMeshFilter != null && selfMeshFilter.sharedMesh != null)
-    //    {
-    //        // 情况1：模型本身有网格（无子物体）
-    //        MeshCollider mc = model.AddComponent<MeshCollider>();
-    //        mc.sharedMesh = selfMeshFilter.sharedMesh;
-    //        mc.convex = true;
-    //        Debug.Log($"✅ 单物体模型，直接添加碰撞体");
-    //    }
-    //    else
-    //    {
-    //        // 情况2：模型有子物体，尝试合并网格
-    //        MeshFilter[] childMeshFilters = model.GetComponentsInChildren<MeshFilter>();
-
-    //        if (childMeshFilters.Length > 1)
-    //        {
-    //            // 多个子物体，合并网格
-    //            SetupParentMeshCollider(model);
-    //        }
-    //        else if (childMeshFilters.Length == 1)
-    //        {
-    //            // 只有一个子物体，在其上添加碰撞体（推荐）
-    //            MeshCollider mc = childMeshFilters[0].gameObject.AddComponent<MeshCollider>();
-    //            mc.sharedMesh = childMeshFilters[0].sharedMesh;
-    //            mc.convex = true;
-    //            Debug.Log($"✅ 单子物体模型，在子物体上添加碰撞体");
-    //        }
-    //        else
-    //        {
-    //            // 退路：使用 BoxCollider
-    //            SetupParentBoxCollider(model);
-    //        }
-    //    }
-    //}
-
-
-
-
-
-
-    void Awake()
-    {
-        //获取路径
-        Model_Path = Path.Combine(Application.persistentDataPath, "Models");
-        // 单例
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
+   
 
     // ========== 添加设施（由外部调用） ==========
     public void AddFacility(FacilityData data)
@@ -195,6 +249,24 @@ public class FacilityManager : MonoBehaviour
         progressData.facilities.Add(data);
         SaveProgress();
         Debug.Log($"已添加设施: {data.id}");
+    }
+    public void RemoveFacility(string id)//因为传入的是id
+    {
+        // 查找是否存在
+        FacilityData data = progressData.facilities.Find(f => f.id == id);
+        if (data == null)
+        {
+            Debug.LogWarning($"设施 {id} 不存在，无法删除");
+            return;
+        }
+
+        // 从列表中移除
+        progressData.facilities.Remove(data);
+
+        // 保存
+        SaveProgress();
+
+        Debug.Log($"已删除设施: {id}");
     }
 
     // ========== 获取所有设施（供恢复场景用） ==========
@@ -217,7 +289,7 @@ public class FacilityManager : MonoBehaviour
             Debug.Log("没有进度文件，初始化为空");
         }
     }
-
+    
     // ========== 内部：保存 ==========
     void SaveProgress()
     {

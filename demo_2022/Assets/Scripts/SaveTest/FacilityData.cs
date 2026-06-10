@@ -15,6 +15,7 @@ public class FacilityData
     public float scale;
     public string modelFileName;
     public string addedTime;
+    public bool isDeleted =false;
 
     // 方便操作的辅助方法（可选）
     public Vector3 GetPosition()
