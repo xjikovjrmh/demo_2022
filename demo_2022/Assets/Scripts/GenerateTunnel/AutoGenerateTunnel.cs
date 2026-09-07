@@ -18,7 +18,7 @@ public class AutoGenerateTunnel : MonoBehaviour
     private void Start()
     {
         //起点第一个隧道初始化
-        tunnelPrefab =ABMgr.GetInstance().LoadRes<GameObject>("model", "tunnel");
+        tunnelPrefab = ABMgr.GetInstance().LoadRes<GameObject>("model", "tunnel");
         tunnelPrefab.SetActive(false);//隐藏起来
         tunnelPrefab.name = "model/tunnel";
         lastTunnel = tunnelPrefab.transform;
@@ -26,9 +26,6 @@ public class AutoGenerateTunnel : MonoBehaviour
         //第二个
         //tunnelPrefab = ABMgr.GetInstance().LoadRes<GameObject>("model", "tunnel");
         //tunnelPrefab.transform.position += new Vector3(0, 0, 50);
-
-
-
 
     }
 

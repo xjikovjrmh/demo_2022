@@ -5,7 +5,6 @@ using UnityEngine;
 //引入插件
 using GLTFast;
 using System;
-using System.Collections;
 /// <summary>
 /// 设施进度管理器 —— 挂到一个名为"ProgressManager"的空物体上
 /// </summary>
@@ -27,6 +26,7 @@ public class FacilityManager : MonoBehaviour
         SaveProgress();
         isDirty = false;
     }
+    //自动保存
     private void TryAutoSave()
     {
         isDirty = true;
@@ -45,51 +45,7 @@ public class FacilityManager : MonoBehaviour
             isDirty = false;
         }
     }
-    public bool DeleteFacility(string id)
-    {
-        FacilityData data =progressData.facilities.Find(f => f.id == id);
-        if (data == null || data.isDeleted) return false;
-        {
-            //修改json数据
-            data.isDeleted = true;
-            isDirty = true;
-            //保存
-            TryAutoSave();
-            //发送事件
-            OnFacilityDeleted?.Invoke(id);
-            return true;
-        }
-    }
-    public bool RestoreFacility(string id)
-    {
-        FacilityData data = progressData.facilities.Find(f => f.id == id);
-        if (data == null || !data.isDeleted) return false;// 不存在或者没有被删除的
-        
-        //恢复
-        data.isDeleted = false;
-        isDirty = true;
-        //保存
-        TryAutoSave();
-        OnFacilityRestored?.Invoke(id);
-        return true;
-
-    }
-    // 获取最近删除的 id ，从最近的开始，一个一个返回
-    public string GetRecentDeletedFacilityId()
-    {
-        // 从 facilities 中找 isDeleted == true 且 addedTime 最新的
-        FacilityData recent = null;
-        foreach (var f in progressData.facilities)
-        {
-            if (!f.isDeleted) continue;  // 被删除的才继续
-            if (recent == null || string.Compare(f.addedTime, recent.addedTime) > 0)
-                recent = f;
-        }
-        return recent?.id;
-    }
-
-
-
+    
     private string Model_Path;
     private const string FILE_NAME = "progress.json";
     const string facility_path = "facility/facility";
@@ -111,7 +67,7 @@ public class FacilityManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-    
+    //异步加载模型，从json读取数据，实例化模型
     async void Start()
     {
         // 拼出你模型的实际路径
@@ -126,12 +82,12 @@ public class FacilityManager : MonoBehaviour
         // data 是 byte[] 类型，uri 是文件路径
         bool success = await loader.Load(data, new System.Uri(modelPath));
 
-        // 实例化
+        // 实例化 Facility 模型（初号模型） 
         if (success)
         {
             // 先实例化到当前物体的子级     InstantiateMainSceneAsync函数在指定的父物体下创建模型
+             
             success = await loader.InstantiateMainSceneAsync(transform);
-
             if (success)
             {
                 // 从 transform 的子物体中获取实例化的模型
@@ -183,6 +139,8 @@ public class FacilityManager : MonoBehaviour
                 }
                 //加载资源      
             }
+
+            facilityPrefab.SetActive(false);//隐藏初号机
         }
 
     }
@@ -250,6 +208,7 @@ public class FacilityManager : MonoBehaviour
         SaveProgress();
         Debug.Log($"已添加设施: {data.id}");
     }
+    //真删除
     public void RemoveFacility(string id)//因为传入的是id
     {
         // 查找是否存在
@@ -268,6 +227,54 @@ public class FacilityManager : MonoBehaviour
 
         Debug.Log($"已删除设施: {id}");
     }
+
+//软删除设备
+    public bool DeleteFacility(string id)
+    {
+        FacilityData data =progressData.facilities.Find(f => f.id == id);
+        if (data == null || data.isDeleted) return false;
+        {
+            //修改json数据
+            data.isDeleted = true;
+            isDirty = true;
+            //保存
+            TryAutoSave();
+            //发送事件
+            OnFacilityDeleted?.Invoke(id);
+            return true;
+        }
+    }
+    //恢复设备
+    public bool RestoreFacility(string id)
+    {
+        FacilityData data = progressData.facilities.Find(f => f.id == id);
+        if (data == null || !data.isDeleted) return false;// 不存在或者没有被删除的
+        
+        //恢复
+        data.isDeleted = false;
+        isDirty = true;
+        //保存
+        TryAutoSave();
+        OnFacilityRestored?.Invoke(id);
+        return true;
+
+    }
+    // 获取最近删除的 id ，从最近的开始，一个一个返回
+    public string GetRecentDeletedFacilityId()
+    {
+        // 从 facilities 中找 isDeleted == true 且 addedTime 最新的
+        FacilityData recent = null;
+        foreach (var f in progressData.facilities)
+        {
+            if (!f.isDeleted) continue;  // 被删除的才继续
+            if (recent == null || string.Compare(f.addedTime, recent.addedTime) > 0)
+                recent = f;
+        }
+        return recent?.id; // 返回 id没找到时候返回 null
+    }
+
+
+
 
     // ========== 获取所有设施（供恢复场景用） ==========
     public List<FacilityData> GetAllFacilities()
@@ -289,7 +296,6 @@ public class FacilityManager : MonoBehaviour
             Debug.Log("没有进度文件，初始化为空");
         }
     }
-    
     // ========== 内部：保存 ==========
     void SaveProgress()
     {
