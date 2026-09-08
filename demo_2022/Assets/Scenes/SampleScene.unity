@@ -919,7 +919,6 @@ GameObject:
   m_Component:
   - component: {fileID: 436990027}
   - component: {fileID: 436990026}
-  - component: {fileID: 436990025}
   - component: {fileID: 436990028}
   m_Layer: 0
   m_Name: FrontCarCamera
@@ -928,14 +927,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &436990025
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 436990024}
-  m_Enabled: 1
 --- !u!20 &436990026
 Camera:
   m_ObjectHideFlags: 0
@@ -1772,7 +1763,6 @@ GameObject:
   m_Component:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
-  - component: {fileID: 963194226}
   - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Main Camera
@@ -1781,14 +1771,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &963194226
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
 --- !u!20 &963194227
 Camera:
   m_ObjectHideFlags: 0
@@ -2700,10 +2682,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bbe663151a6bb145a4254ae382e9077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tram1FirstCamera: {fileID: 938575841}
-  tram1ThirdCamera: {fileID: 483474525}
-  tram2FirstCamera: {fileID: 1970575802}
-  tram2ThirdCamera: {fileID: 272175302}
+  tramMovements: []
+  firstCameraPoints:
+  - {fileID: 938575841}
+  - {fileID: 1970575802}
+  thirdCameraPoints:
+  - {fileID: 483474525}
+  - {fileID: 272175302}
   mainCamera: {fileID: 963194227}
   FrontCarCamera: {fileID: 436990026}
   ThirdCarCamera: {fileID: 1717028575}
@@ -3673,7 +3658,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1717028576}
   - component: {fileID: 1717028575}
-  - component: {fileID: 1717028574}
   - component: {fileID: 1717028577}
   m_Layer: 0
   m_Name: ThirdCarCamera
@@ -3682,14 +3666,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1717028574
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1717028573}
-  m_Enabled: 1
 --- !u!20 &1717028575
 Camera:
   m_ObjectHideFlags: 0

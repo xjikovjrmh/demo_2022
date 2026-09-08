@@ -14,7 +14,7 @@ public class CameraRotation : MonoBehaviour
     private bool hasInitialized = false;
 
 
-    // 获取当前状态（用于保存）
+    // 获取人物当前状态（用于保存其旋转角度 退出重进场景都留下记录）
     public Vector2 GetRotationState()
     {
         return new Vector2(xRotation, yRotation);
@@ -45,7 +45,25 @@ public class CameraRotation : MonoBehaviour
 
     private void Update()
     {
+        //初始化
+        Initialized();
+        
+        float mouseX = Input.GetAxis("Mouse X");
+        float mouseY = Input.GetAxis("Mouse Y");
+        if (mouseX != 0 || mouseY != 0)
+        {
+            yRotation += mouseX * mouseSensitivity * Time.deltaTime;
+            xRotation -= mouseY * mouseSensitivity * Time.deltaTime;
+            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
+            transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+            playerBody.rotation = Quaternion.Euler(0, yRotation, 0);
+        }
+        transform.position = playerBody.position;
+    }
+
+    private void Initialized()
+    {
         //前两帧专门用来"吸收"加载期间累积的鼠标位移
         if (!hasInitialized)
         {
@@ -66,17 +84,5 @@ public class CameraRotation : MonoBehaviour
                 return;
             }
         }
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
-        if (mouseX != 0 || mouseY != 0)
-        {
-            yRotation += mouseX * mouseSensitivity * Time.deltaTime;
-            xRotation -= mouseY * mouseSensitivity * Time.deltaTime;
-            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-            transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-            playerBody.rotation = Quaternion.Euler(0, yRotation, 0);
-        }
-        transform.position = playerBody.position;
     }
 }

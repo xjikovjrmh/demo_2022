@@ -10,7 +10,6 @@ public class CarMovement : MonoBehaviour
     public float speed = 8f;
     private Vector3 moveDirection;
     private Rigidbody rb;
-
     private bool IsAutoForward = false;
     private Coroutine AutoForwardCoroutine;
     private void Start()
@@ -22,10 +21,6 @@ public class CarMovement : MonoBehaviour
     {
         float y = Input.GetAxisRaw("Vertical");//获取前后移动值
 
-        //if (y != 0)
-        //{
-        //    move(y);
-        //}
         if (Input.GetKeyDown(KeyCode.K))   //两个getKeyDown永远不能同时触发  用一个GetKeyDown ，不是GetKey 
         {
             Debug.Log("开始自动前进");
@@ -41,11 +36,7 @@ public class CarMovement : MonoBehaviour
                 StopAllCoroutines();           // 关闭自动前进
             }
         }
-
-
-
     }
-
     private IEnumerator AutoForward()
     {
         while (true)
@@ -55,8 +46,6 @@ public class CarMovement : MonoBehaviour
 
         }
     }
-
-
     private void move(float y)
     {
         moveDirection = transform.forward * y;//注意不要乘time.deltaTime

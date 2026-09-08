@@ -8,16 +8,17 @@ public class CameraController : MonoBehaviour
 {
     // Start is called before the first frame update
     //存储两个tram的两个机位,
-    public Transform tram1FirstCamera;
-    public Transform tram1ThirdCamera;
-    public Transform tram2FirstCamera;
-    public Transform tram2ThirdCamera;
+    //用数组简化
+    private CarMovement[] tramMovements = new CarMovement[2];//0表示一号车，1表示二号车
+    [SerializeField] private Transform[] firstCameraPoints;
+    [SerializeField] private Transform[] thirdCameraPoints;
 
+    //相机
     public Camera mainCamera; //这里用GameObject不用camera
     public Camera FrontCarCamera;
     public Camera ThirdCarCamera;
     //private ModeController modeController;
-
+    //车人
     public GameObject tram1;
     public GameObject tram2;
     public CarMovement currentTram;
@@ -27,43 +28,59 @@ public class CameraController : MonoBehaviour
     public KeyCode SwitchButton = KeyCode.V;
     private int currentCameraIndex = 0;
     private int currentCarNumber = 0;
-
+    //脚本
+    private PlayerMovement playerMovement;
+    private CameraRotation cameraRotation;
+    private FrontCarCamera frontCarCamera;
+    private ThirdPersonCamera thirdPersonCamera;
     
 
     private void Awake()
-    {
+    {   
+        
+        //赋值给脚本
+        InitializeScripts();
         player.GetComponent<PlayerMovement>().enabled = true;
+        //初始化  不是从inspecto中拖入的数组必须先 new ，否则会报空引用错误
+        tramMovements[0]= tram1.GetComponent<CarMovement>();
+        tramMovements[1] = tram2.GetComponent<CarMovement>();
         //车初始指向tram1
-        currentTram = tram1.GetComponent<CarMovement>();
-        tram1.GetComponent<CarMovement>().enabled = false;
-        tram2.GetComponent<CarMovement>().enabled = false;
-
+        currentTram = tramMovements[currentCarNumber];
+        
+        tramMovements[0].enabled = true;
+        tramMovements[1].enabled = false;
+        
         //开始相机只保留主相机
         mainCamera.enabled = true;
         FrontCarCamera.enabled = false;
         ThirdCarCamera.enabled = false;
         //只保留主相机的AudioListener脚本
-        mainCamera.GetComponent<AudioListener>().enabled = true;
-        FrontCarCamera.GetComponent<AudioListener>().enabled = false;
-        ThirdCarCamera.GetComponent<AudioListener>().enabled = false;
+        
         //只激活主相机跟随脚本
-        mainCamera.GetComponent<CameraRotation>().enabled = true;
-        FrontCarCamera.GetComponent<FrontCarCamera>().enabled= false;
-        ThirdCarCamera.GetComponent<ThirdPersonCamera>().enabled= false;
+        cameraRotation.enabled = true;
+        frontCarCamera.enabled= false;
+        thirdPersonCamera.enabled= false;
 
         //
+    }
+    private void InitializeScripts()
+    {
+        playerMovement = player.GetComponent<PlayerMovement>();
+        cameraRotation = mainCamera.GetComponent<CameraRotation>();
+        frontCarCamera = FrontCarCamera.GetComponent<FrontCarCamera>();
+        thirdPersonCamera = ThirdCarCamera.GetComponent<ThirdPersonCamera>();
     }
 
     // Update is called once per frame
     private void Update()
     {
-        if(Input.GetKeyDown(SwitchButton))
+        if(Input.GetKeyDown(SwitchButton))//V
         {
             SwitchToCamera();//别传入参数，否则会因为局部变量而在函数执行后销毁
         }
         //这里要求只在车的视角可以切换车号
         //if (Input.GetKeyDown(SwitchTram)&&currentCameraIndex>0)
-        if (Input.GetKeyDown(SwitchTram))
+        if (Input.GetKeyDown(SwitchTram)) //B
         {
             SwitchToCar();
         }
@@ -75,48 +92,30 @@ public class CameraController : MonoBehaviour
     {
         currentCarNumber++;
         currentCarNumber %= 2;
-        //只要切换相机跟随目标即可
-        switch (currentCarNumber)
-        {
-            case 0:
-                Debug.Log("切换到一号车");
-                //相机跟随点变化
-                //carMovement脚本变化
-                currentTram.enabled=false;
-                currentTram = tram1.GetComponent<CarMovement>();
-                currentTram.enabled = true;
-                //camera 脚本变化
-                FrontCarCamera.GetComponent<FrontCarCamera>().carHead = tram1FirstCamera;
-                ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram1ThirdCamera; break;
-            case 1:
-                Debug.Log("切换到二号车");
-                currentTram.enabled = false;
-                currentTram = tram2.GetComponent<CarMovement>();
-                currentTram.enabled = true;
-
-                FrontCarCamera.GetComponent<FrontCarCamera>().carHead = tram2FirstCamera;
-                ThirdCarCamera.GetComponent<ThirdPersonCamera>().target = tram2ThirdCamera; break;
-
-        }
+        Debug.Log("切换到" + (currentCarNumber + 1) + "号车");
+        //相机跟随点变化
+        //carMovement脚本变化
+        currentTram.enabled=false;
+        currentTram = tramMovements[currentCarNumber];
+        currentTram.enabled = true;
+        //camera 脚本属性赋值
+        frontCarCamera.carHead = firstCameraPoints[currentCarNumber];
+        thirdPersonCamera.target = thirdCameraPoints[currentCarNumber]; 
+           
     }
     private void SwitchToCamera()
     {
+
+        Debug.Log("切换到" + (currentCameraIndex + 1) + "号相机");
         currentCameraIndex++;
         currentCameraIndex %= 3;
 
         //先禁用所有相机
-        mainCamera.enabled=false;
-        FrontCarCamera.enabled = false;
-        ThirdCarCamera.enabled=false;
-        //禁用所有音频组件
-        mainCamera.GetComponent<AudioListener>().enabled = false;
-        FrontCarCamera.GetComponent<AudioListener>().enabled = false;
-        ThirdCarCamera.GetComponent<AudioListener>().enabled = false;
-
-        mainCamera.GetComponent<CameraRotation>().enabled = false;
-        FrontCarCamera.GetComponent<FrontCarCamera>().enabled = false;
-        ThirdCarCamera.GetComponent<ThirdPersonCamera>().enabled = false;
-
+        DisableAllCamera();
+        //脚本
+        cameraRotation.enabled = false;
+        frontCarCamera.enabled = false;
+        thirdPersonCamera.enabled = false;
 
         switch (currentCameraIndex)
         {
@@ -126,9 +125,10 @@ public class CameraController : MonoBehaviour
                 currentTram.enabled=false;
 
                 //modeController.SwitchMode();
+                //两行都要写， 第一行是禁用相机渲染，其脚本还在跑
                 mainCamera.enabled=true;
-                mainCamera.GetComponent<AudioListener>().enabled = true;
-                mainCamera.GetComponent<CameraRotation>().enabled = true;
+                
+                cameraRotation.enabled = true;
 
                 break;
             case 1:
@@ -139,16 +139,22 @@ public class CameraController : MonoBehaviour
 
                 //modeController.SwitchMode();
                 FrontCarCamera.enabled=true;
-                FrontCarCamera.GetComponent<AudioListener>().enabled = true;
-                FrontCarCamera.GetComponent<FrontCarCamera>().enabled=true;
+                
+                frontCarCamera.enabled=true;
 
                 break;
             case 2:
                 ThirdCarCamera.enabled=true;
-                ThirdCarCamera.GetComponent<AudioListener>().enabled = true;
-                ThirdCarCamera.GetComponent<ThirdPersonCamera>().enabled = true;
+                
+                thirdPersonCamera.enabled = true;
                 break;
         }
 
+    }
+    private void DisableAllCamera()
+    {
+        mainCamera.enabled=false;
+        FrontCarCamera.enabled = false;
+        ThirdCarCamera.enabled=false;
     }
 }
